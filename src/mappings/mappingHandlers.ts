@@ -24,16 +24,13 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
     let events = block.events;
     for (let i = 0; i < events.length; i++) {
         let eventRecord = events[i];
-        const {
-            event: { method, section, index },
-        } = eventRecord;
+        let event = eventRecord.event
+        let method = event.method
         switch (method) {
             case "Deposit":
-                const { event } = eventRecord;
                 const [accountToSet, balance] = event.data.toJSON() as [string, bigint];
                 logger.info(`Handling deposit!: ${JSON.stringify(event)}`);
                 logger.info("Account " + accountToSet + " Balance -- " + balance) 
-                logger.info("Event data -- " + event.data) 
                 break;
             default:
                 logger.info("Ignoring method -- "+ method)
