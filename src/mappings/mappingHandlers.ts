@@ -68,19 +68,21 @@ export async function handleBalanceSet(block: SubstrateBlock, event: EventRecord
     const [account, balance1, balance2] = event.event.data.toJSON() as [string, bigint, bigint];
     logger.info(`Handling BalanceSet!: ${JSON.stringify(event)}`);
     logger.info("Account " + account + " Balance " + balance1 + " Balance2 " + balance2)
-    
-    //Create a new Account entity with ID using block hash
-    let record = new Account(block.block.header.hash.toString());
-    
-    record.account = account.toString();
-    record.balance = balance1+balance2
-    await record.save();
 }
   
 export async function handleDeposit(block: SubstrateBlock, event: EventRecord): Promise<void> { 
     const [account, balance] = event.event.data.toJSON() as [string, bigint];
     logger.info(`Handling Deposit!: ${JSON.stringify(event)}`);
     logger.info("Account " + account + " Balance " + balance) 
+
+    //Create a new Account entity with ID using block hash
+    let record = new Account(account.toString());
+    record.account = account.toString();
+    record.balance = balance
+    await record.save();
+
+    const data = await api.query.system.account(account)
+	logger.info("Logging from api query " + data.toString())
 }
 
 export async function handleDustLost(block: SubstrateBlock, event: EventRecord): Promise<void> { 
