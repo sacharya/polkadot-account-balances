@@ -1,12 +1,12 @@
 import {SubstrateEvent, SubstrateBlock} from "@subql/types";
-import {Account} from "../types";
+import {Account, Deposit} from "../types";
 import {Balance} from "@polkadot/types/interfaces";
 import { EventRecord } from "@polkadot/types/interfaces/system";
 
 const test_account = "13K9u5pGD4Si4rXkemKQ4smZ6MWTBZfRcvyjJLKE3j3m5m3X"; 
 
-export async function handleBlock(block: SubstrateBlock): Promise<void> {    
-    let blockNumber = block.block.header.number.toBigInt();
+export async function handleBlock(block: SubstrateBlock): Promise<void> {      
+    let blockNumber = block.block.header.number.toNumber();
     let events = block.events;
     for (let i = 0; i < events.length; i++) {
         let eventRecord = events[i];
@@ -21,9 +21,9 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
             /*case "DustLost":
                 handleDustLost(block, eventRecord);
                 break;*/
-            case "Endowed":
-                handleEndowed(block, eventRecord);
-                break;
+            // case "Endowed":
+            //     handleEndowed(block, eventRecord);
+            //     break;
             /*case "Reserved":
                 handleReserved(block, eventRecord);
                 break;
@@ -33,48 +33,21 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
             case "Slashed":
                 handleSlashed(block, eventRecord);
                 break;*/
-            case "Transfer":
-                handleTransfer(block, eventRecord); 
-                break;
+            // case "Transfer":
+            //     handleTransfer(block, eventRecord); 
+            //     break;
             /*case "Unreserved":
                 handleUnreserved(block, eventRecord); 
                 break;*/
-            case "Withdraw":
-                handleWithdraw(block, eventRecord); 
-                break;
+            // case "Withdraw":
+            //     handleWithdraw(block, eventRecord); 
+            //     break;
             /*default:
                 logger.info("Ignoring method -- "+ method)
                 break;*/
         }
      
     }
-}
-
-export async function handleBalanceSet(block: SubstrateBlock, event: EventRecord): Promise<void> { 
-    const [account, balance1, balance2] = event.event.data.toJSON() as [string, bigint, bigint];
-    logger.info(`Handling BalanceSet!: ${JSON.stringify(event)}`);
-    logger.info("Account " + account + " Balance " + balance1 + " Balance2 " + balance2)
-}
-  
-export async function handleDeposit(block: SubstrateBlock, event: EventRecord): Promise<void> { 
-    const [account, balance] = event.event.data.toJSON() as [string, bigint];
-    if (account.toString() != test_account) {
-        return
-    }
-    logger.info(`Handling Deposit!: ${JSON.stringify(event)}`);
-    logger.info("Account " + account + " Balance " + balance) 
-
-    logger.info("Block " + block.block.header.hash.toString())
-    let record = await Account.get(account.toString());
-    if (record === undefined){
-        record = createAccount(account.toString());
-        logger.info("Found new account " + account.toString())
-    }
-    let old_balance = record.balance
-    record.balance = record.balance + BigInt(balance)
-    logger.info("====Added deposit:  (" + old_balance + "+" + balance + ")=" + record.balance)
-    await record.save();
-    
 }
 
 function createAccount(account: string): Account {
@@ -84,102 +57,145 @@ function createAccount(account: string): Account {
     return entity;
 }
 
-export async function handleDustLost(block: SubstrateBlock, event: EventRecord): Promise<void> { 
-    const [account, balance] = event.event.data.toJSON() as [string, bigint];
-    logger.info(`Handling DustLost!: ${JSON.stringify(event)}`);
-    logger.info("Account " + account + " Balance " + balance) 
-}
-export async function handleEndowed(block: SubstrateBlock, event: EventRecord): Promise<void> { 
+export async function handleDeposit(block: SubstrateBlock, event: EventRecord): Promise<void> { 
     const [account, balance] = event.event.data.toJSON() as [string, bigint];
     if (account.toString() != test_account) {
         return
     }
-    logger.info(`Handling Endowed!: ${JSON.stringify(event)}`);
+    logger.info(`Handling Deposit!: ${JSON.stringify(event)}`);
     logger.info("Account " + account + " Balance " + balance) 
-
-    logger.info("Block " + block.block.header.hash.toString())
-    let record = await Account.get(account.toString());
-    if (record === undefined){
-        record = createAccount(account.toString());
-        logger.info("Found new account " + account.toString())
-    }
-    let old_balance = record.balance
-    record.balance = record.balance + BigInt(balance)
-    logger.info("====Added endowed:  (" + old_balance + "+" + balance + ")=" + record.balance)
-    await record.save();
     
-}
-export async function handleReserved(block: SubstrateBlock, event: EventRecord): Promise<void> { 
-    const [account, balance] = event.event.data.toJSON() as [string, bigint];
-    logger.info(`Handling Reserved!: ${JSON.stringify(event)}`);
-    logger.info("Account " + account + " Balance " + balance) 
-}
-export async function handleReserveRepatriated(block: SubstrateBlock, event: EventRecord): Promise<void> { 
-    const [account, account2, balance, balance2] = event.event.data.toJSON() as [string, string, bigint, bigint];
-    logger.info(`Handling ReserveRepatriated!: ${JSON.stringify(event)}`);
-    logger.info("Account " + account + " Account2 " + account2 + " Balance " + balance + " Balance2 " + balance2) 
-}
-export async function handleSlashed(block: SubstrateBlock, event: EventRecord): Promise<void> { 
-    const [account, balance] = event.event.data.toJSON() as [string, bigint];
-    logger.info(`Handling Slashed!: ${JSON.stringify(event)}`);
-    logger.info("Account " + account + " Balance " + balance) 
-}
-export async function handleTransfer(block: SubstrateBlock, event: EventRecord): Promise<void> { 
-    const [account, account2, balance] = event.event.data.toJSON() as [string,string, bigint];
-    if (account.toString() != test_account && account2.toString() != test_account) {
-        return
-    }
-    logger.info(`Handling Transfer!: ${JSON.stringify(event)}`);
-    logger.info("Account " + account + " Account2 " + account2 + " Balance " + balance) 
-
-    if (account.toString() == test_account) {
-        logger.info("Block " + block.block.header.hash.toString())
-        let record = await Account.get(account.toString());
-        if (record === undefined){
-            record = createAccount(account.toString());
-            logger.info("Found new account " + account.toString())
-        }
-        let old_balance = record.balance
-        record.balance = record.balance - BigInt(balance)
-        logger.info("====Deducted transfer:  (" + old_balance + "-" + balance + ")=" + record.balance)
-        await record.save();
-    }
-    if (account2.toString() == test_account) {
-        logger.info("Block " + block.block.header.hash.toString())
-        let record = await Account.get(account2.toString());
-        if (record === undefined){
-            record = createAccount(account2.toString());
-            logger.info("Found new account " + account2.toString())
-        }
-        let old_balance = record.balance
-
-        record.balance = record.balance + BigInt(balance)
-        logger.info("====Added transfer:  (" + old_balance + "+" + balance + ")=" + record.balance)
-        await record.save();
-    }
-}
-
-export async function handleUnreserved(block: SubstrateBlock, event: EventRecord): Promise<void> { 
-    const [account, balance] = event.event.data.toJSON() as [string, bigint];
-    logger.info(`Handling Unreserved!: ${JSON.stringify(event)}`);
-    logger.info("Account " + account + " Balance " + balance) 
-}
-export async function handleWithdraw(block: SubstrateBlock, event: EventRecord): Promise<void> { 
-    const [account, balance] = event.event.data.toJSON() as [string, bigint];
-    if (account.toString() != test_account) {
-        return
-    }
-    logger.info(`Handling Withdraw!: ${JSON.stringify(event)}`);
-    logger.info("Account " + account + " Balance " + balance) 
-
     logger.info("Block " + block.block.header.hash.toString())
     let record = await Account.get(account.toString());
     if (record === undefined){
         record = createAccount(account.toString());
         logger.info("Found new account " + account.toString())
     }
-    let old_balance = record.balance
-    record.balance = record.balance - BigInt(balance)
-    logger.info("====Deducted withdraw:  (" + old_balance + "-" + balance + ")=" + record.balance)
-    await record.save();
+    let old_balance = record.balance;
+    record.balance = record.balance + BigInt(balance);
+    
+    
+    //add data into deposit
+    const deposit = new Deposit(block.block.header.hash.toString());
+    deposit.blockNumber = block.block.header.number.toBigInt();
+    deposit.amount = balance;
+    deposit.account = account;
+    
+    await record.save().then( async res => {
+        await deposit.save().then((ress) => {
+            logger.info("deposit save =>"+ ress)
+        })
+        .catch((err) => {
+            logger.info("deposit error => " + err)
+        });
+    }).catch((erro) => {
+        logger.info("account error => " + erro)
+    });
 }
+
+// export async function handleBalanceSet(block: SubstrateBlock, event: EventRecord): Promise<void> { 
+//     const [account, balance1, balance2] = event.event.data.toJSON() as [string, bigint, bigint];
+//     logger.info(`Handling BalanceSet!: ${JSON.stringify(event)}`);
+//     logger.info("Account " + account + " Balance " + balance1 + " Balance2 " + balance2)
+// }
+
+
+// export async function handleDustLost(block: SubstrateBlock, event: EventRecord): Promise<void> { 
+//     const [account, balance] = event.event.data.toJSON() as [string, bigint];
+//     logger.info(`Handling DustLost!: ${JSON.stringify(event)}`);
+//     logger.info("Account " + account + " Balance " + balance) 
+// }
+// export async function handleEndowed(block: SubstrateBlock, event: EventRecord): Promise<void> { 
+//     const [account, balance] = event.event.data.toJSON() as [string, bigint];
+//     if (account.toString() != test_account) {
+//         return
+//     }
+//     logger.info(`Handling Endowed!: ${JSON.stringify(event)}`);
+//     logger.info("Account " + account + " Balance " + balance) 
+
+//     logger.info("Block " + block.block.header.hash.toString())
+//     let record = await Account.get(account.toString());
+//     if (record === undefined){
+//         record = createAccount(account.toString());
+//         logger.info("Found new account " + account.toString())
+//     }
+//     let old_balance = record.balance
+//     record.balance = record.balance + BigInt(balance)
+//     logger.info("====Added endowed:  (" + old_balance + "+" + balance + ")=" + record.balance)
+//     await record.save();
+    
+// }
+// export async function handleReserved(block: SubstrateBlock, event: EventRecord): Promise<void> { 
+//     const [account, balance] = event.event.data.toJSON() as [string, bigint];
+//     logger.info(`Handling Reserved!: ${JSON.stringify(event)}`);
+//     logger.info("Account " + account + " Balance " + balance) 
+// }
+// export async function handleReserveRepatriated(block: SubstrateBlock, event: EventRecord): Promise<void> { 
+//     const [account, account2, balance, balance2] = event.event.data.toJSON() as [string, string, bigint, bigint];
+//     logger.info(`Handling ReserveRepatriated!: ${JSON.stringify(event)}`);
+//     logger.info("Account " + account + " Account2 " + account2 + " Balance " + balance + " Balance2 " + balance2) 
+// }
+// export async function handleSlashed(block: SubstrateBlock, event: EventRecord): Promise<void> { 
+//     const [account, balance] = event.event.data.toJSON() as [string, bigint];
+//     logger.info(`Handling Slashed!: ${JSON.stringify(event)}`);
+//     logger.info("Account " + account + " Balance " + balance) 
+// }
+// export async function handleTransfer(block: SubstrateBlock, event: EventRecord): Promise<void> { 
+//     const [account, account2, balance] = event.event.data.toJSON() as [string,string, bigint];
+//     if (account.toString() != test_account && account2.toString() != test_account) {
+//         return
+//     }
+//     logger.info(`Handling Transfer!: ${JSON.stringify(event)}`);
+//     logger.info("Account " + account + " Account2 " + account2 + " Balance " + balance) 
+
+//     if (account.toString() == test_account) {
+//         logger.info("Block " + block.block.header.hash.toString())
+//         let record = await Account.get(account.toString());
+//         if (record === undefined){
+//             record = createAccount(account.toString());
+//             logger.info("Found new account " + account.toString())
+//         }
+//         let old_balance = record.balance
+//         record.balance = record.balance - BigInt(balance)
+//         logger.info("====Deducted transfer:  (" + old_balance + "-" + balance + ")=" + record.balance)
+//         await record.save();
+//     }
+//     if (account2.toString() == test_account) {
+//         logger.info("Block " + block.block.header.hash.toString())
+//         let record = await Account.get(account2.toString());
+//         if (record === undefined){
+//             record = createAccount(account2.toString());
+//             logger.info("Found new account " + account2.toString())
+//         }
+//         let old_balance = record.balance
+
+//         record.balance = record.balance + BigInt(balance)
+//         logger.info("====Added transfer:  (" + old_balance + "+" + balance + ")=" + record.balance)
+//         await record.save();
+//     }
+// }
+
+// export async function handleUnreserved(block: SubstrateBlock, event: EventRecord): Promise<void> { 
+//     const [account, balance] = event.event.data.toJSON() as [string, bigint];
+//     logger.info(`Handling Unreserved!: ${JSON.stringify(event)}`);
+//     logger.info("Account " + account + " Balance " + balance) 
+// }
+// export async function handleWithdraw(block: SubstrateBlock, event: EventRecord): Promise<void> { 
+//     const [account, balance] = event.event.data.toJSON() as [string, bigint];
+//     if (account.toString() != test_account) {
+//         return
+//     }
+//     logger.info(`Handling Withdraw!: ${JSON.stringify(event)}`);
+//     logger.info("Account " + account + " Balance " + balance) 
+
+//     logger.info("Block " + block.block.header.hash.toString())
+//     let record = await Account.get(account.toString());
+//     if (record === undefined){
+//         record = createAccount(account.toString());
+//         logger.info("Found new account " + account.toString())
+//     }
+//     let old_balance = record.balance
+//     record.balance = record.balance - BigInt(balance)
+//     logger.info("====Deducted withdraw:  (" + old_balance + "-" + balance + ")=" + record.balance)
+//     await record.save();
+// }

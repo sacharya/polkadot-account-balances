@@ -1,9 +1,12 @@
 type Account @entity {
+  id: ID!
+  account: String
+  balance: BigInt
+}
 
-  id: ID! #id is a required field
-
-  account: String #This is a Polkadot address
-
-  balance: BigInt #This is the amount of DOT
-
+type Deposit @entity {
+  id: ID!
+  account: String
+  blockNumber: BigInt
+  amount: BigInt #amount deposited
 }
