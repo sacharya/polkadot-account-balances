@@ -15,15 +15,15 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
             /*case "BalanceSet":
                 handleBalanceSet(block, eventRecord);
                 break;*/
-            case "Deposit":
+            /*case "Deposit":
                 handleDeposit(block, eventRecord);
-                break;
+                break;*/
             /*case "DustLost":
                 handleDustLost(block, eventRecord);
                 break;*/
-            case "Endowed":
+            /*case "Endowed":
                 handleEndowed(block, eventRecord);
-                break;
+                break;*/
             /*case "Reserved":
                 handleReserved(block, eventRecord);
                 break;
@@ -35,13 +35,14 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
                 break;*/
             case "Transfer":
                 handleTransfer(block, eventRecord); 
+                handleTransferAccount(block, eventRecord); 
                 break;
             /*case "Unreserved":
                 handleUnreserved(block, eventRecord); 
                 break;*/
-            case "Withdraw":
+            /*case "Withdraw":
                 handleWithdraw(block, eventRecord); 
-                break;
+                break;*/
             /*default:
                 logger.info("Ignoring method -- "+ method)
                 break;*/
@@ -153,9 +154,17 @@ export async function handleTransfer(block: SubstrateBlock, event: EventRecord):
         let old_balance = record.balance
 
         record.balance = record.balance + BigInt(balance)
-        logger.info("====Added transfer:  (" + old_balance + "+" + balance + ")=" + record.balance)
-        //await record.save();
+        await record.save();
     }
+}
+
+export async function handleTransferAccount(block: SubstrateBlock, event: EventRecord): Promise<void> { 
+    const [account, account2, balance] = event.event.data.toJSON() as [string,string, bigint];
+    if (account.toString() != test_account && account2.toString() != test_account) {
+        return
+    }
+    logger.info(`Handling Transfer1!: ${JSON.stringify(event)}`);
+    logger.info("Account " + account + " Account2 " + account2 + " Balance " + balance) 
 
      //add data into transfer
      const transfer = new Transfer(block.block.header.hash.toString());
@@ -172,6 +181,7 @@ export async function handleTransfer(block: SubstrateBlock, event: EventRecord):
         logger.info("transfer error => " + err)
     });
 }
+
 
 export async function handleUnreserved(block: SubstrateBlock, event: EventRecord): Promise<void> { 
     const [account, balance] = event.event.data.toJSON() as [string, bigint];
