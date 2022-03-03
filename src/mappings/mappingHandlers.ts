@@ -1,9 +1,9 @@
 import {SubstrateEvent, SubstrateBlock} from "@subql/types";
-import {Account} from "../types";
+import {Account, Transfer} from "../types";
 import {Balance} from "@polkadot/types/interfaces";
 import { EventRecord } from "@polkadot/types/interfaces/system";
 
-const test_account = "13K9u5pGD4Si4rXkemKQ4smZ6MWTBZfRcvyjJLKE3j3m5m3X"; 
+const test_account = "15zAzu3hKv3HDVbR9CJKG5RfJ4WYqaUZBybmX6ETVzP5L98e";
 
 export async function handleBlock(block: SubstrateBlock): Promise<void> {    
     let blockNumber = block.block.header.number.toBigInt();
@@ -74,7 +74,6 @@ export async function handleDeposit(block: SubstrateBlock, event: EventRecord): 
     record.balance = record.balance + BigInt(balance)
     logger.info("====Added deposit:  (" + old_balance + "+" + balance + ")=" + record.balance)
     await record.save();
-    
 }
 
 function createAccount(account: string): Account {
@@ -155,8 +154,23 @@ export async function handleTransfer(block: SubstrateBlock, event: EventRecord):
 
         record.balance = record.balance + BigInt(balance)
         logger.info("====Added transfer:  (" + old_balance + "+" + balance + ")=" + record.balance)
-        await record.save();
+        //await record.save();
     }
+
+     //add data into transfer
+     const transfer = new Transfer(block.block.header.hash.toString());
+     transfer.blockNumber = block.block.header.number.toBigInt();
+     transfer.amount = balance;
+     transfer.fromAccount = account;
+     transfer.toAccount = account2;
+
+     logger.info("====Saved transfer account:  (Balance " + balance + " at blocknumber " + transfer.blockNumber + ")")
+     await transfer.save().then((ress) => {
+        logger.info("transfer save =>"+ ress)
+    })
+    .catch((err) => {
+        logger.info("transfer error => " + err)
+    });
 }
 
 export async function handleUnreserved(block: SubstrateBlock, event: EventRecord): Promise<void> { 

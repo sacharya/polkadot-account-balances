@@ -7,3 +7,11 @@ type Account @entity {
   balance: BigInt #This is the amount of DOT
 
 }
+
+type Transfer @entity {
+  id: ID!
+  fromAccount: String
+  toAccount: String
+  blockNumber: BigInt
+  amount: BigInt #amount deposited
+}
