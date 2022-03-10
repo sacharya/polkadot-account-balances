@@ -5,7 +5,4 @@ type Account @entity {
   reserveBalance: BigInt
   totalBalance: BigInt
   blockNumber: BigInt
-  1d: BigInt
-  7d: BigInt
-  30d: BigInt
 }

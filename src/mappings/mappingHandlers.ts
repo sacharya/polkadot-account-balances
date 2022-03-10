@@ -36,6 +36,9 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
                 break;
             case "Transfer":
                 accountsInEvent=await handleTransfer(block, eventRecord); 
+                for (const account of accountsInEvent) {
+                    await handleTotalBalance(block, account)
+                }
                 break;
             case "Unreserved":
                 accountsInEvent=await handleUnreserved(block, eventRecord); 
@@ -53,7 +56,7 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
     }
     if (accountsInBlock.length > 0) {
         for (const account of accountsInBlock) {
-            await handleTotalBalance(block, account)  
+            //await handleTotalBalance(block, account)
         }
     }
 }
@@ -123,17 +126,25 @@ export async function handleTotalBalance(block: SubstrateBlock, account: string)
       )) as unknown as AccountInfo;
 
     if (raw) {
+        logger.info("Account is " + account)
         logger.info("Raw is " + raw)  
         logger.info("Free " + raw.data.free.toBigInt()) 
         logger.info("Reserved " + raw.data.reserved.toBigInt())
         logger.info("Total " + raw.data.free.toBigInt() + raw.data.reserved.toBigInt())
-        const totalAccount = new Account(account);
-        totalAccount.account = account
-        totalAccount.freeBalance = raw.data.free.toBigInt();
-        totalAccount.reserveBalance = raw.data.reserved.toBigInt();
-        totalAccount.totalBalance = raw.data.free.toBigInt() + raw.data.reserved.toBigInt();
-        totalAccount.blockNumber = block.block.header.number.toBigInt();
-        await totalAccount.save().then((ress) => {
+        let record = await Account.get(account);
+        if (!record) {
+            record = Account.create({
+                id: account,
+                account: account
+              });
+            logger.info("Found new account " + record)
+        }
+        record.freeBalance = raw.data.free.toBigInt();
+        record.reserveBalance = raw.data.reserved.toBigInt();
+        record.totalBalance = raw.data.free.toBigInt() + raw.data.reserved.toBigInt();
+        record.blockNumber = block.block.header.number.toBigInt();
+
+        await record.save().then((ress) => {
             logger.info("totalAccount save =>"+ ress)
         })
         .catch((err) => {
