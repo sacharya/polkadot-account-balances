@@ -16,34 +16,34 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
         let method = eventRecord.event.method
         switch (method) {
             case "BalanceSet":
-                //accountsInEvent=await handleBalanceSet(block, eventRecord);
+                accountsInEvent=await handleBalanceSet(block, eventRecord);
                 break;
             case "Deposit":
-                //accountsInEvent=await handleDeposit(block, eventRecord);
+                await handleDeposit(block, eventRecord);
                 break;
             case "DustLost":
-                //accountsInEvent=await handleDustLost(block, eventRecord);
+                accountsInEvent=await handleDustLost(block, eventRecord);
                 break;
             case "Endowed":
                 accountsInEvent=await handleEndowed(block, eventRecord);
                 break;
             case "Reserved":
-                //await handleReserved(block, eventRecord);
+                accountsInEvent=await handleReserved(block, eventRecord);
                 break;
             case "ReserveRepatriated":
-                //await handleReserveRepatriated(block, eventRecord);
+                accountsInEvent=await handleReserveRepatriated(block, eventRecord);
                 break;
             case "Slashed":
-                //await handleSlashed(block, eventRecord);
+                accountsInEvent=await handleSlashed(block, eventRecord);
                 break;
             case "Transfer":
-                //await handleTransfer(block, eventRecord); 
+                accountsInEvent=await handleTransfer(block, eventRecord); 
                 break;
             case "Unreserved":
-                //await handleUnreserved(block, eventRecord); 
+                accountsInEvent=await handleUnreserved(block, eventRecord); 
                 break;
             case "Withdraw":
-                //await handleWithdraw(block, eventRecord); 
+                accountsInEvent=await handleWithdraw(block, eventRecord); 
                 break;
             default:
                 //logger.info("Ignoring method -- "+ method)
@@ -69,8 +69,8 @@ export async function handleBalanceSet(block: SubstrateBlock, event: EventRecord
   
 export async function handleDeposit(block: SubstrateBlock, event: EventRecord): Promise<string[]> { 
     const [account, balance] = event.event.data.toJSON() as [string, bigint];
-    logger.info(`Handling Deposit!: ${JSON.stringify(event)}`);
-    logger.info("Account " + account + " Balance " + balance) 
+    //logger.info(`Handling Deposit!: ${JSON.stringify(event)}`);
+    //logger.info("Account " + account + " Balance " + balance) 
     return [account]
 }
 
