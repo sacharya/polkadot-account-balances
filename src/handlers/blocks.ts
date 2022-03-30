@@ -4,21 +4,6 @@ import {EventRecord} from "@polkadot/types/interfaces/system";
 export async function getBlockAccounts(block: SubstrateBlock): Promise<string[]> {    
     let accountsInBlock: string[] = [];
 
-    let especialAccountsOnly = true
-
-    if (especialAccountsOnly==true) {
-        let blockNumber = block.block.header.number.toNumber()
-        if(blockNumber%10000==0) {
-            let espAccounts = await readEspecialAccounts()
-            for (const account of espAccounts) {
-                accountsInBlock.push(account)
-            }
-            return accountsInBlock
-        } else {
-            return []
-        }
-    }
-
     let events = block.events;
 
     let accountsInEvent: string[] = [];
@@ -68,7 +53,7 @@ export async function getBlockAccounts(block: SubstrateBlock): Promise<string[]>
 }
 
 //cat accounts.txt  | awk '{ print "\""$0"\","}'
-async function readEspecialAccounts(): Promise<string[]>{
+export async function readEspecialAccounts(): Promise<string[]>{
     return ["12xtAYsRUrmbniiWQqJtECiBQrMn8AypQcXhnQAc6RB6XkLW",
     "15j4dg5GzsL1bw2U2AWgeyAk6QTxq43V7ZPbXdAmbVLjvDCK",
     "16ZL8yLyXv3V3L3z9ofR1ovFLziyXaN1DPq4yffMAZ9czzBD",
