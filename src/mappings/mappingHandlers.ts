@@ -8,6 +8,20 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
     logger.info("Processing events in block " + blockNumber);
 
     let accountsInBlock = await getBlockAccounts(block)
+
+    let especialAccountsOnly = true
+
+    if (especialAccountsOnly==true) {
+        let blockNum= block.block.header.number.toNumber()
+        if(blockNum==9658000) {
+            let espAccounts = await readEspecialAccounts()
+            for (const account of espAccounts) {
+                accountsInBlock.push(account)
+            }
+        }
+    }
+
+
     if (accountsInBlock.length > 0) {
         for (const account of accountsInBlock) {
             await saveAccountBalance(block.block.header.number.toBigInt(), account)
