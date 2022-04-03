@@ -11,10 +11,12 @@ network:
   dictionary: https://api.subquery.network/sq/subquery/dictionary-polkadot
 dataSources:
   - kind: substrate/Runtime
-    startBlock: 9000000
+    startBlock: 9658000
     mapping:
       file: ./dist/index.js
       handlers:
+        #- handler: handleBlock
+        #  kind: substrate/BlockHandler
         - handler: handleEvent
           kind: substrate/EventHandler
           filter:

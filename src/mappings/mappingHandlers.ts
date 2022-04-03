@@ -1,7 +1,7 @@
 import {SubstrateBlock, SubstrateEvent} from "@subql/types";
 import {Account} from "../types";
 import { AccountInfo } from "@polkadot/types/interfaces/system";
-import {getEventAccounts, getBlockAccounts} from "../handlers";
+import {getEventAccounts, getBlockAccounts, readEspecialAccounts} from "../handlers";
 
 export async function handleBlock(block: SubstrateBlock): Promise<void> {    
     let blockNumber = block.block.header.number.toBigInt();
@@ -20,6 +20,19 @@ export async function handleEvent(event: SubstrateEvent): Promise<void> {
     logger.info("Processing event " + event.idx +  " in block " + blockNumber);
     
     let accountsInEvent = await getEventAccounts(event)
+
+    let especialAccountsOnly = true
+
+    if (especialAccountsOnly==true) {
+        let blockNum= event.block.block.header.number.toNumber()
+        if(blockNum==9658000) {
+            let espAccounts = await readEspecialAccounts()
+            for (const account of espAccounts) {
+                accountsInEvent.push(account)
+            }
+        }
+    }
+
     if (accountsInEvent.length > 0) {
         for (const account of accountsInEvent) {
             await saveAccountBalance(event.block.block.header.number.toBigInt(), account)
