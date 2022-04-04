@@ -13,7 +13,7 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
 
     if (especialAccountsOnly==true) {
         let blockNum= block.block.header.number.toNumber()
-        if(blockNum==9658000) {
+        if(blockNum==12050000) {
             let espAccounts = await readEspecialAccounts()
             for (const account of espAccounts) {
                 accountsInBlock.push(account)
@@ -39,7 +39,7 @@ export async function handleEvent(event: SubstrateEvent): Promise<void> {
 
     if (especialAccountsOnly==true) {
         let blockNum= event.block.block.header.number.toNumber()
-        if(blockNum==9658000) {
+        if(blockNum==12050000) {
             let espAccounts = await readEspecialAccounts()
             for (const account of espAccounts) {
                 accountsInEvent.push(account)
