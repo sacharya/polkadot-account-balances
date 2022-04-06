@@ -1,8 +1,7 @@
-# SubQuery - Starter Package
+# SubQuery - polkadot-account-balances
 
 
-The Starter Package is an example that you can use as a starting point for developing your SubQuery project.
-A SubQuery package defines which data The SubQuery will index from the Substrate blockchain, and how it will store it. 
+polkadot-account-balances is a subquery project, that indexes data from the polkadot blockchain and updates account balanaces for each block. The result being we can query it to get a list of top accounts by balance at any given time.
 
 ## Preparation
 
