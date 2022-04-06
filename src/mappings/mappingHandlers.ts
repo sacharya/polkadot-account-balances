@@ -9,6 +9,7 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
 
     let accountsInBlock = await getBlockAccounts(block)
 
+    /*
     let especialAccountsOnly = true
 
     if (especialAccountsOnly==true) {
@@ -19,7 +20,7 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
                 accountsInBlock.push(account)
             }
         }
-    }
+    }*/
 
 
     if (accountsInBlock.length > 0) {
@@ -35,6 +36,7 @@ export async function handleEvent(event: SubstrateEvent): Promise<void> {
     
     let accountsInEvent = await getEventAccounts(event)
 
+    /*
     let especialAccountsOnly = true
 
     if (especialAccountsOnly==true) {
@@ -45,7 +47,7 @@ export async function handleEvent(event: SubstrateEvent): Promise<void> {
                 accountsInEvent.push(account)
             }
         }
-    }
+    }*/
 
     if (accountsInEvent.length > 0) {
         for (const account of accountsInEvent) {
