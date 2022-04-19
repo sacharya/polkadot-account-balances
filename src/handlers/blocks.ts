@@ -10,7 +10,7 @@ export async function getBlockAccounts(block: SubstrateBlock): Promise<string[]>
         let eventRecord = events[i];
         let method = eventRecord.event.method
         let section = eventRecord.event.section
-        if (section="balances") {
+        if (section=="balances") {
             switch (method) {
                 case "BalanceSet":
                     accountsInEvent=await handleBalanceSet(eventRecord);
@@ -47,7 +47,7 @@ export async function getBlockAccounts(block: SubstrateBlock): Promise<string[]>
                     break;
             }
         }
-        if (section="staking") {
+        if (section=="staking") {
             switch (method) {
                 case "Bonded":
                     accountsInEvent=await handleBonded(eventRecord);
